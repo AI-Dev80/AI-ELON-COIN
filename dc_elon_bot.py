@@ -4,9 +4,9 @@ import re
 from langchain_openai import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
 from dotenv import load_dotenv
+import logging
 
 # Enable logging
-import logging
 logging.basicConfig(level=logging.INFO)
 
 # Load environment variables
@@ -47,7 +47,7 @@ def generate_response(message_content):
 # Event listener for when the bot is ready
 @client.event
 async def on_ready():
-    logging.info(f'Logged in as {client.user}')
+    print(f'Logged in as {client.user}')
 
 # Event listener for new messages
 @client.event
@@ -57,9 +57,10 @@ async def on_message(message):
         return  # Avoid replying to itself
 
     if client.user.mentioned_in(message):
-        # Extract quoted text if available
+        # Extract quoted text if available, otherwise use the full message content
         quoted_text = extract_quoted_text(message.content)
         response = generate_response(quoted_text)
+        # Respond mentioning the user who mentioned the bot
         response_with_mention = f"{message.author.mention} {response}"
         await message.channel.send(response_with_mention)
 
