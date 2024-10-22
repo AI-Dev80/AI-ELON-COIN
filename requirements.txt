@@ -1,5 +1,4 @@
 discord.py
-langchain
-openai
+langchain-openai
 python-dotenv
-langchain_community
+openai
