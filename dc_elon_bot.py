@@ -42,7 +42,8 @@ def generate_response(message_content):
     chat_prompt = ChatPromptTemplate.from_messages([system_message_prompt, human_message_prompt])
     final_prompt = chat_prompt.format_prompt(text=message_content).to_messages()
 
-    return llm(final_prompt).content
+    return llm.invoke(final_prompt).content
+
 
 # Event listener for when the bot is ready
 @client.event
