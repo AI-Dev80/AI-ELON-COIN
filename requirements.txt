@@ -2,3 +2,5 @@ discord.py
 langchain-openai
 python-dotenv
 openai
+langchain
+langchain.prompts
