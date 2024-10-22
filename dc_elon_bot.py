@@ -2,7 +2,6 @@ import os
 import discord
 import re
 from langchain_openai import ChatOpenAI
-
 from langchain.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
 from dotenv import load_dotenv
 
