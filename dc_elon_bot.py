@@ -47,9 +47,9 @@ def generate_response(message_content):
 # Event listener for when the bot is ready
 @client.event
 async def on_ready():
-    print(f'Logged in as {client.user}')
+    logging.info(f'Logged in as {client.user}')
 
-
+# Event listener for new messages
 @client.event
 async def on_message(message):
     logging.info(f"Message received: {message.content}")  # Log the message content
@@ -59,7 +59,6 @@ async def on_message(message):
     if client.user.mentioned_in(message):
         # Extract quoted text if available
         quoted_text = extract_quoted_text(message.content)
-        logging.info(f"Quoted text: {quoted_text}")  # Log the quoted text
         response = generate_response(quoted_text)
         response_with_mention = f"{message.author.mention} {response}"
         await message.channel.send(response_with_mention)
