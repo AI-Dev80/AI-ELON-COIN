@@ -6,36 +6,34 @@ from langchain.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, H
 from dotenv import load_dotenv
 import logging
 
-# Enable logging
+# Set up logging for monitoring
 logging.basicConfig(level=logging.INFO)
 
-# Load environment variables
+# Load environment variables from .env file
 load_dotenv()
 
-# Load OpenAI API key from environment variables
+# Get OpenAI API key from environment
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
-# Set up the Discord client with intent to listen for mentions
+# Configure Discord client with permissions to read messages
 intents = discord.Intents.default()
 intents.messages = True
-intents.message_content = True  # Required to read message content and mentions
+intents.message_content = True
 client = discord.Client(intents=intents)
 
-# Set up the OpenAI language model
+# Initialize the OpenAI language model
 llm = ChatOpenAI(temperature=.5, openai_api_key=OPENAI_API_KEY, model_name='gpt-3.5-turbo')
 
-# Function to extract quoted text (e.g., text prefixed by "> ")
+# Function to extract quoted text from messages
 def extract_quoted_text(message_content):
     quoted_text = re.findall(r'>\s*(.*)', message_content)
     return ' '.join(quoted_text) if quoted_text else message_content
 
-# Function to generate AI response based on the message content
+# Function to create a response as Elon Musk
 def generate_response(message_content):
-    # Prompt template for AI to respond as Elon Musk
     system_template = """
-        You are Elon Musk. Respond with a casual, conversational tone, but maintain your intuitive, sharp insight.
-        Keep it witty, confident, and forward-thinking. Imagine you're chatting casually, but with a hint of your genius.
-        Keep responses short and casual, under 200 characters AVOID ANY BUZZ WORD.
+        You are Elon Musk. Respond casually with sharp insights.
+        Keep it witty and confident. Responses should be short.
     """
     system_message_prompt = SystemMessagePromptTemplate.from_template(system_template)
     human_message_prompt = HumanMessagePromptTemplate.from_template("{text}")
@@ -44,25 +42,23 @@ def generate_response(message_content):
 
     return llm(final_prompt).content
 
-# Event listener for when the bot is ready
+# When the bot is ready, log its name
 @client.event
 async def on_ready():
-    print(f'Logged in as {client.user}')
+    logging.info(f'Logged in as {client.user}')
 
-# Event listener for new messages
+# Handle incoming messages
 @client.event
 async def on_message(message):
-    logging.info(f"Message received: {message.content}")  # Log the message content
     if message.author == client.user:
-        return  # Avoid replying to itself
+        return  # Ignore messages from the bot itself
 
     if client.user.mentioned_in(message):
-        # Extract quoted text if available, otherwise use the full message content
+        # Extract quoted text for context
         quoted_text = extract_quoted_text(message.content)
         response = generate_response(quoted_text)
-        # Respond mentioning the user who mentioned the bot
         response_with_mention = f"{message.author.mention} {response}"
         await message.channel.send(response_with_mention)
 
-# Run the bot with the Discord token from environment variables
+# Start the bot using the Discord token
 client.run(os.getenv("DISCORD_BOT_TOKEN"))
