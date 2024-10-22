@@ -6,34 +6,28 @@ from langchain.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, H
 from dotenv import load_dotenv
 import logging
 
-# Set up logging for monitoring
+# Enable logging
 logging.basicConfig(level=logging.INFO)
 
-# Load environment variables from .env file
+# Load environment variables
 load_dotenv()
 
-# Get OpenAI API key from environment
+# Load OpenAI API key
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
-# Configure Discord client with permissions to read messages
+# Set up Discord client with intents
 intents = discord.Intents.default()
 intents.messages = True
 intents.message_content = True
 client = discord.Client(intents=intents)
 
-# Initialize the OpenAI language model
+# Set up OpenAI language model
 llm = ChatOpenAI(temperature=.5, openai_api_key=OPENAI_API_KEY, model_name='gpt-3.5-turbo')
 
-# Function to extract quoted text from messages
-def extract_quoted_text(message_content):
-    quoted_text = re.findall(r'>\s*(.*)', message_content)
-    return ' '.join(quoted_text) if quoted_text else message_content
-
-# Function to create a response as Elon Musk
+# Function to generate AI response
 def generate_response(message_content):
     system_template = """
-        You are Elon Musk. Respond casually with sharp insights.
-        Keep it witty and confident. Responses should be short.
+        You are Elon Musk. Respond casually and confidently. Keep it witty and concise, under 200 characters.
     """
     system_message_prompt = SystemMessagePromptTemplate.from_template(system_template)
     human_message_prompt = HumanMessagePromptTemplate.from_template("{text}")
@@ -42,23 +36,23 @@ def generate_response(message_content):
 
     return llm(final_prompt).content
 
-# When the bot is ready, log its name
+# Event listener for when the bot is ready
 @client.event
 async def on_ready():
-    logging.info(f'Logged in as {client.user}')
+    print(f'Logged in as {client.user}')
 
-# Handle incoming messages
+# Event listener for new messages
 @client.event
 async def on_message(message):
     if message.author == client.user:
-        return  # Ignore messages from the bot itself
+        return  # Avoid replying to itself
 
     if client.user.mentioned_in(message):
-        # Extract quoted text for context
-        quoted_text = extract_quoted_text(message.content)
-        response = generate_response(quoted_text)
+        # Generate a response using the entire message content
+        response = generate_response(message.content)
+        # Respond mentioning the user
         response_with_mention = f"{message.author.mention} {response}"
         await message.channel.send(response_with_mention)
 
-# Start the bot using the Discord token
+# Run the bot with the Discord token
 client.run(os.getenv("DISCORD_BOT_TOKEN"))
