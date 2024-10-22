@@ -22,7 +22,7 @@ intents.message_content = True
 client = discord.Client(intents=intents)
 
 # Set up OpenAI language model
-llm = ChatOpenAI(temperature=0.5, openai_api_key=OPENAI_API_KEY, model_name='gpt-4')
+llm = ChatOpenAI(temperature=0.5, openai_api_key=OPENAI_API_KEY, model_name='gpt-4-mini')
 
 
 # Function to generate AI response
